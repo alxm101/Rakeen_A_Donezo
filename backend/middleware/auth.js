@@ -1,2 +1,21 @@
+import jwt from "jsonwebtoken";
+import dotenv from "dotenv";
 
-//Put code here for the middleware to authenticate User requests if they have the token and check if it's a legit token
+dotenv.config();
+
+export function authenticateToken(req, res, next) {
+  const authHeader = req.headers["authorization"];
+  const token = authHeader && authHeader.split(" ")[1];
+
+  if (!token) {
+    return res.status(401).json({ error: "No token provided" });
+  }
+
+  jwt.verify(token, process.env.SUPABASE_JWT_SECRET, (err, user) => {
+    if (err) {
+      return res.status(403).json({ error: "Invalid token" });
+    }
+    req.user = user;
+    next();
+  });
+}
