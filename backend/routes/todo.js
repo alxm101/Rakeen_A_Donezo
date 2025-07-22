@@ -1,14 +1,23 @@
 import express from "express";
 import prisma from "../db/index.js";
+import { authenticateToken } from "../middleware/auth.js";
 
 const router = express.Router();
 
+// Protect all routes below
+router.use(authenticateToken);
+
 router.get("/", async (req, res) => {
-  const todos = await prisma.todo.findMany({
-    where: { userId: req.user.sub }
-  });
-  res.status(200).json({ success: true, todos });
+  try {
+    const todos = await prisma.todo.findMany({
+      where: { userId: req.user.sub },
+    });
+    res.status(200).json({ success: true, todos });
+  } catch (e) {
+    res.status(500).json({ success: false, message: "Failed to fetch todos" });
+  }
 });
+
 
 router.post("/", async (req, res) => {
   const { name, description } = req.body;
@@ -19,11 +28,11 @@ router.post("/", async (req, res) => {
         name,
         description,
         completed: false,
-        userId: req.user.sub
-      }
+        userId: req.user.sub,
+      },
     });
 
-    res.status(201).json({ success: true, todo: newTodo.id });
+    res.status(201).json({ success: true, todo: newTodo });
   } catch (e) {
     res.status(500).json({ success: false, message: "Failed to create todo" });
   }
@@ -35,14 +44,15 @@ router.put("/:todoId/completed", async (req, res) => {
   try {
     const todo = await prisma.todo.update({
       where: { id: todoId },
-      data: { completed: true }
+      data: { completed: true },
     });
 
-    res.status(200).json({ success: true, todo: todo.id });
+    res.status(200).json({ success: true, todo });
   } catch (e) {
     res.status(500).json({ success: false, message: "Update failed" });
   }
 });
+
 
 router.delete("/:todoId", async (req, res) => {
   const todoId = Number(req.params.todoId);
@@ -53,13 +63,13 @@ router.delete("/:todoId", async (req, res) => {
     if (!todo || !todo.completed) {
       return res.status(400).json({
         success: false,
-        message: "Todo must be completed before deleting"
+        message: "Todo must be completed before deleting",
       });
     }
 
     await prisma.todo.delete({ where: { id: todoId } });
 
-    res.status(200).json({ success: true, todo: todoId });
+    res.status(200).json({ success: true, todoId });
   } catch (e) {
     res.status(500).json({ success: false, message: "Delete failed" });
   }
