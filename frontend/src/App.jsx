@@ -1,26 +1,35 @@
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom'
-import Login from './pages/Login'
-import SignUp from './pages/SignUp'
-import Dashboard from './pages/Dashboard'
+import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { QueryClientProvider, QueryClient } from "@tanstack/react-query";
+
+import MainLayout from "./layouts/main-layout";    
 import ProtectedRoute from "./components/ProtectedRoute";
+import Login from "./pages/Login";
+import SignUp from "./pages/SignUp";
+import Todos from "./pages/Todos";                  
 
-function App() {
+const client = new QueryClient();
+
+export default function App() {
   return (
-    <Router>
-      <Routes>
-        <Route path="/" element={<Login />} />
-        <Route path="/signup" element={<SignUp />} />
-        <Route
-          path="/dashboard"
-          element={
-            <ProtectedRoute>
-              <Dashboard />
-            </ProtectedRoute>
-          }
-        />
-      </Routes>
-    </Router>
-  )
-}
+    <QueryClientProvider client={client}>
+      <BrowserRouter>
+        <Routes>
+          <Route path="/" element={<Login />} />
+          <Route path="/signup" element={<SignUp />} />
 
-export default App
+          {/* Protected /todos, rendered inside MainLayout */}
+          <Route path="/todos" element={<MainLayout />}>
+            <Route
+              index
+              element={
+                <ProtectedRoute>
+                  <Todos />
+                </ProtectedRoute>
+              }
+            />
+          </Route>
+        </Routes>
+      </BrowserRouter>
+    </QueryClientProvider>
+  );
+}

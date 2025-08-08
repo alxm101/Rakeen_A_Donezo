@@ -1,23 +1,20 @@
-import { useState } from 'react'
-import supabase from '/src/lib/supabase.js'
-import { useNavigate } from 'react-router-dom'
+import { useState } from "react";
+import { useNavigate, Link } from "react-router-dom";
+import supabase from "../lib/supabase";
 
 export default function Login() {
-  const [email, setEmail] = useState('')
-  const [password, setPassword] = useState('')
-  const [error, setError] = useState('')
-  const navigate = useNavigate()
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
+  const navigate = useNavigate();
 
   const handleLogin = async (e) => {
-    e.preventDefault()
-    setError('')
-    const { error } = await supabase.auth.signInWithPassword({ email, password })
-    if (error) {
-      setError(error.message)
-    } else {
-      navigate('/dashboard') // make sure this route exists later
-    }
-  }
+    e.preventDefault();
+    setError("");
+    const { error } = await supabase.auth.signInWithPassword({ email, password });
+    if (error) setError(error.message);
+    else navigate("/todos");
+  };
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-base-200">
@@ -41,7 +38,10 @@ export default function Login() {
           {error && <p className="text-red-500">{error}</p>}
           <button type="submit" className="btn btn-primary w-full">Login</button>
         </form>
+        <p className="mt-4 text-center text-sm">
+          Don&apos;t have an account? <Link to="/signup" className="text-blue-500 underline">Sign up</Link>
+        </p>
       </div>
     </div>
-  )
+  );
 }

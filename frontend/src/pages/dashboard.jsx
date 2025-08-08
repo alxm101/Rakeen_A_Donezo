@@ -22,7 +22,6 @@ export default function Dashboard() {
 
         const axios = await getAxiosClient();
         const { data } = await axios.get("/todos");
-
         setTodos(data.todos || []);
       } catch (error) {
         console.error("Failed to load todos:", error.message);
@@ -49,7 +48,11 @@ export default function Dashboard() {
           </button>
         </div>
 
-        {user && <p className="text-sm text-gray-500 mb-2">Logged in as: {user.email}</p>}
+        {user && (
+          <p className="text-sm text-gray-500 mb-2">
+            Logged in as: {user.email}
+          </p>
+        )}
 
         {loading ? (
           <p>Loading todos...</p>
@@ -60,7 +63,9 @@ export default function Dashboard() {
                 key={todo.id}
                 className="flex items-center justify-between bg-base-300 px-4 py-2 rounded"
               >
-                <span className={todo.completed ? "line-through text-gray-400" : ""}>
+                <span
+                  className={todo.completed ? "line-through text-gray-400" : ""}
+                >
                   {todo.name}
                 </span>
               </li>
